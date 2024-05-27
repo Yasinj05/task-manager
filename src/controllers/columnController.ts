@@ -42,7 +42,7 @@ export const deleteColumn = async (req: Request, res: Response) => {
     if (!column) {
       return res.status(404).json({ error: "Column not found" });
     }
-    res.status(200).send("Column deleted successfully");
+    res.status(200).send({ message: "Column deleted successfully" });
   } catch (error) {
     handleError(error, res);
   }

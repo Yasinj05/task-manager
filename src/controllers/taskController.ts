@@ -47,7 +47,7 @@ export const deleteTask = async (req: Request, res: Response) => {
     if (!task) {
       return res.status(404).json({ error: "Task not found" });
     }
-    res.status(200).send("Task deleted successfully");
+    res.status(200).send({ message: "Task deleted successfully" });
   } catch (error) {
     handleError(error, res);
   }
@@ -56,22 +56,26 @@ export const deleteTask = async (req: Request, res: Response) => {
 export const reorderTasks = async (req: Request, res: Response) => {
   try {
     const { columnId, tasks } = req.body;
+
     for (const task of tasks) {
       await Task.findByIdAndUpdate(task.id, { order: task.order, columnId });
     }
+
     res.status(200).json({ message: "Tasks reordered successfully" });
   } catch (error) {
-    handleError(error, res);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
 export const bulkUpdateTasks = async (req: Request, res: Response) => {
   try {
     const { taskIds, columnId } = req.body;
+
     await Task.updateMany({ _id: { $in: taskIds } }, { columnId });
+
     res.status(200).json({ message: "Tasks updated successfully" });
   } catch (error) {
-    handleError(error, res);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
