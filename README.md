@@ -41,7 +41,7 @@ This project is a backend API for a task management system built using Node.js, 
      EMAIL_PASS=your-email-app-password
      ```
 
-   To generate an app password for your Gmail account, follow the instructions in the Setting Up Gmail App Password section below.
+   To generate an app password for your Gmail account, follow the instructions in the [Setting Up Gmail App Password](#setting-up-gmail-app-password) section below.
 
 5. **Start the server:**
 
