@@ -1,8 +1,8 @@
-# Task Management App
+# Task Management App 📝
 
 This project is a backend API for a task management system built using Node.js, Express, and MongoDB. It allows users to create, update, delete, and reorder tasks and columns within a task management board.
 
-## Features
+## Features 💡
 
 - Create, update, delete, and reorder tasks within columns
 - Create, update, and delete columns
@@ -10,7 +10,7 @@ This project is a backend API for a task management system built using Node.js, 
 - Bulk update tasks
 - Integrated email notification service for task completions
 
-## Installation
+## Installation 📥
 
 1. **Clone the repository:**
 
@@ -51,11 +51,11 @@ This project is a backend API for a task management system built using Node.js, 
 
    The server will start on `http://localhost:3000`.
 
-## API Documentation
+## API Documentation 🧪
 
 The API is documented using Swagger. Once the server is running, you can access the documentation at `http://localhost:3000/api-docs`.
 
-## Endpoints
+## Endpoints 🖇️
 
 ### Columns
 
@@ -72,7 +72,7 @@ The API is documented using Swagger. Once the server is running, you can access 
 - Bulk update tasks: `PATCH /tasks/bulk-update`
 - Mark a task as completed: `PUT /tasks/:id/completed`
 
-## Setting Up Gmail App Password
+## Setting Up Gmail App Password ✉️
 
 To use the email notification feature, you need to set up an app password for your Gmail account. Follow these steps:
 
@@ -84,6 +84,6 @@ To use the email notification feature, you need to set up an app password for yo
 6. Enter a name for the app (e.g., "Task Manager Backend") and click Generate.
 7. You will see a 16-character app password. Copy this password and use it in the `EMAIL_PASS` environment variable in your `.env` file.
 
-## License
+## License ⚖️
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
