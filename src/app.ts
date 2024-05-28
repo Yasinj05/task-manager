@@ -1,20 +1,21 @@
 import express from "express";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
+import { setupSwagger } from "./swagger";
 import columnRoutes from "./routes/columnRoutes";
 import taskRoutes from "./routes/taskRoutes";
 import { errorHandler } from "./middleware/errorHandler";
-
+import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use("/api", columnRoutes);
 app.use("/api", taskRoutes);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 3000;
+setupSwagger(app);
 
 mongoose
   .connect(process.env.MONGODB_URI!)
@@ -25,5 +26,5 @@ mongoose
     });
   })
   .catch((error) => {
-    console.error("MongoDB connection error:", error);
+    console.error("Connection error", error);
   });

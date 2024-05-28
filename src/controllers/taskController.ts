@@ -1,19 +1,20 @@
 import { Request, Response } from "express";
 import Task from "../models/Task";
+import Column from "../models/Column";
 import { sendCompletionNotification } from "../services/emailService";
 
 // Utility function to handle errors
 const handleError = (error: unknown, res: Response) => {
-  if (error instanceof Error) {
-    res.status(500).json({ error: error.message });
-  } else {
-    res.status(500).json({ error: "An unknown error occurred." });
-  }
+  const errorMessage =
+    error instanceof Error ? error.message : "An unknown error occurred.";
+  res.status(500).json({ error: errorMessage });
 };
 
+// Controller to create a new task
 export const createTask = async (req: Request, res: Response) => {
+  const { description, owner, columnId, order } = req.body;
+
   try {
-    const { description, owner, columnId, order } = req.body;
     const task = new Task({ description, owner, columnId, order });
     await task.save();
     res.status(201).json(task);
@@ -22,74 +23,123 @@ export const createTask = async (req: Request, res: Response) => {
   }
 };
 
+// Controller to update an existing task
 export const updateTask = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { description, owner, columnId, order } = req.body;
+
   try {
-    const { id } = req.params;
-    const { description, owner, columnId, order } = req.body;
     const task = await Task.findByIdAndUpdate(
       id,
       { description, owner, columnId, order },
       { new: true }
     );
+
     if (!task) {
       return res.status(404).json({ error: "Task not found" });
     }
+
     res.status(200).json(task);
   } catch (error) {
     handleError(error, res);
   }
 };
 
+// Controller to delete a task
 export const deleteTask = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
   try {
-    const { id } = req.params;
     const task = await Task.findByIdAndDelete(id);
+
     if (!task) {
       return res.status(404).json({ error: "Task not found" });
     }
-    res.status(200).send({ message: "Task deleted successfully" });
+
+    res.status(200).json({ message: "Task deleted successfully" });
   } catch (error) {
     handleError(error, res);
   }
 };
 
+// Controller to reorder tasks within a column
 export const reorderTasks = async (req: Request, res: Response) => {
-  try {
-    const { columnId, tasks } = req.body;
+  const { columnId, tasks } = req.body;
 
+  try {
+    // Check if the columnId is valid
+    const column = await Column.findById(columnId);
+    if (!column) {
+      return res.status(404).json({ error: "Column not found" });
+    }
+
+    // Check if each taskId is valid and belongs to the same column
+    for (const task of tasks) {
+      const existingTask = await Task.findById(task.id);
+      if (!existingTask) {
+        return res
+          .status(404)
+          .json({ error: `Task with id ${task.id} not found` });
+      }
+      if (existingTask.columnId.toString() !== columnId) {
+        return res.status(400).json({
+          error: `Task with id ${task.id} does not belong to column ${columnId}`,
+        });
+      }
+    }
+
+    // Update tasks
     for (const task of tasks) {
       await Task.findByIdAndUpdate(task.id, { order: task.order, columnId });
     }
 
     res.status(200).json({ message: "Tasks reordered successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    handleError(error, res);
   }
 };
 
+// Controller to bulk update tasks
 export const bulkUpdateTasks = async (req: Request, res: Response) => {
-  try {
-    const { taskIds, columnId } = req.body;
+  const { taskIds, columnId } = req.body;
 
+  try {
+    // Check if the columnId is valid
+    const column = await Column.findById(columnId);
+    if (!column) {
+      return res.status(404).json({ error: "Column not found" });
+    }
+
+    // Check if each taskId is valid
+    const tasks = await Task.find({ _id: { $in: taskIds } });
+    if (tasks.length !== taskIds.length) {
+      return res.status(404).json({ error: "One or more tasks not found" });
+    }
+
+    // Update tasks
     await Task.updateMany({ _id: { $in: taskIds } }, { columnId });
 
     res.status(200).json({ message: "Tasks updated successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    handleError(error, res);
   }
 };
 
+// Controller to mark a task as completed
 export const markTaskAsCompleted = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
   try {
-    const { id } = req.params;
     const task = await Task.findByIdAndUpdate(
       id,
       { status: "Completed" },
       { new: true }
     );
+
     if (!task) {
       return res.status(404).json({ error: "Task not found" });
     }
+
     await sendCompletionNotification(task.owner, task.description);
     res.status(200).json(task);
   } catch (error) {
