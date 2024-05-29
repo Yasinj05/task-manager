@@ -84,6 +84,10 @@ To use the email notification feature, you need to set up an app password for yo
 6. Enter a name for the app (e.g., "Task Manager Backend") and click Generate.
 7. You will see a 16-character app password. Copy this password and use it in the `EMAIL_PASS` environment variable in your `.env` file.
 
+## Contributing
+
+Contributions are welcome! Please submit a pull request or open an issue to discuss any changes.
+
 ## License ⚖️
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
