@@ -12,11 +12,13 @@ const handleError = (error: unknown, res: Response) => {
 export const createColumn = async (req: Request, res: Response) => {
   const { name } = req.body;
 
+  // Validate request body
   if (!name) {
     return res.status(400).json({ error: "Name is required" });
   }
 
   try {
+    // Create and save new column
     const column = new Column({ name });
     await column.save();
     res.status(201).json(column);
@@ -30,11 +32,13 @@ export const updateColumn = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { name } = req.body;
 
+  // Validate request body
   if (!name) {
     return res.status(400).json({ error: "Name is required" });
   }
 
   try {
+    // Find and update the column
     const column = await Column.findByIdAndUpdate(id, { name }, { new: true });
 
     if (!column) {
@@ -52,6 +56,7 @@ export const deleteColumn = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
+    // Find and delete the column
     const column = await Column.findByIdAndDelete(id);
 
     if (!column) {

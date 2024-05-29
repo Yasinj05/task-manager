@@ -67,13 +67,12 @@ export const reorderTasks = async (req: Request, res: Response) => {
   const { columnId, tasks } = req.body;
 
   try {
-    // Check if the columnId is valid
-    const column = await Column.findById(columnId);
+    const column = await Column.findById(columnId); // Validate column
     if (!column) {
       return res.status(404).json({ error: "Column not found" });
     }
 
-    // Check if each taskId is valid and belongs to the same column
+    // Validate each task
     for (const task of tasks) {
       const existingTask = await Task.findById(task.id);
       if (!existingTask) {
@@ -88,7 +87,7 @@ export const reorderTasks = async (req: Request, res: Response) => {
       }
     }
 
-    // Update tasks
+    // Reorder tasks
     for (const task of tasks) {
       await Task.findByIdAndUpdate(task.id, { order: task.order, columnId });
     }
@@ -104,20 +103,17 @@ export const bulkUpdateTasks = async (req: Request, res: Response) => {
   const { taskIds, columnId } = req.body;
 
   try {
-    // Check if the columnId is valid
-    const column = await Column.findById(columnId);
+    const column = await Column.findById(columnId); // Validate column
     if (!column) {
       return res.status(404).json({ error: "Column not found" });
     }
 
-    // Check if each taskId is valid
-    const tasks = await Task.find({ _id: { $in: taskIds } });
+    const tasks = await Task.find({ _id: { $in: taskIds } }); // Validate tasks
     if (tasks.length !== taskIds.length) {
       return res.status(404).json({ error: "One or more tasks not found" });
     }
 
-    // Update tasks
-    await Task.updateMany({ _id: { $in: taskIds } }, { columnId });
+    await Task.updateMany({ _id: { $in: taskIds } }, { columnId }); // Bulk update tasks
 
     res.status(200).json({ message: "Tasks updated successfully" });
   } catch (error) {
@@ -140,7 +136,7 @@ export const markTaskAsCompleted = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Task not found" });
     }
 
-    await sendCompletionNotification(task.owner, task.description);
+    await sendCompletionNotification(task.owner, task.description); // Notify task owner
     res.status(200).json(task);
   } catch (error) {
     handleError(error, res);
